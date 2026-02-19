@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sam-prompter"
-version = "0.1.0"
+version = "0.1.1"
 description = "Gradio gr.HTML component for SAM prompt input and mask visualization"
 readme = "README.md"
 license = "MIT"

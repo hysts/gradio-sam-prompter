@@ -43,6 +43,8 @@ def test_process_example_path_returns_img_tag():
     assert result is not None
     assert result.startswith("<img ")
     assert 'alt="example"' in result
+    assert "max-height:5rem" in result
+    assert "object-fit:contain" in result
     assert "border-radius:4px" in result
 
 
@@ -107,6 +109,34 @@ def test_examples_gallery_shows_thumbnails():
 
             count = page.locator('img[alt="example"]').count()
             assert count >= 2, f"Expected >= 2 example thumbnails, got {count}"
+
+            browser.close()
+    finally:
+        demo.close()
+
+
+def test_examples_thumbnails_not_oversized():
+    """Example thumbnails must be height-constrained (max 5rem ≈ 80px)."""
+    _, url, _ = demo.launch(prevent_thread_lock=True)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_default_timeout(10_000)
+            page.goto(url)
+            page.wait_for_timeout(2000)
+
+            imgs = page.locator('img[alt="example"]')
+            count = imgs.count()
+            assert count >= 2, f"Expected >= 2 example thumbnails, got {count}"
+
+            for i in range(count):
+                box = imgs.nth(i).bounding_box()
+                assert box is not None, f"Thumbnail {i} has no bounding box"
+                assert box["height"] <= 100, (
+                    f"Thumbnail {i} is too tall: {box['height']:.0f}px "
+                    f"(expected <= 100px)"
+                )
 
             browser.close()
     finally:

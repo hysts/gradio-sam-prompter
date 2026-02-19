@@ -213,7 +213,7 @@ class SamPrompter(gr.HTML):
         image_source = value[0] if isinstance(value, tuple) else value
         img = _load_image(image_source)
         url = _save_image_to_cache(img, self.GRADIO_CACHE)
-        return f'<img src="{url}" alt="example" style="max-width:100%;height:auto;display:block;border-radius:4px;">'
+        return f'<img src="{url}" alt="example" style="max-width:100%;max-height:5rem;object-fit:contain;display:block;border-radius:4px;">'
 
     def api_info(self) -> dict[str, Any]:
         return {
