@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sam-prompter"
+version = "0.1.0"
+description = "Gradio gr.HTML component for SAM prompt input and mask visualization"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "gradio>=6.6.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sam_prompter"]
+
+[tool.ruff]
+line-length = 119
+exclude = ["*.pyi"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812", # missing-trailing-comma
+    "D203",   # one-blank-line-before-class
+    "D213",   # multi-line-summary-second-line
+    "E501",   # line-too-long
+    "SIM117", # multiple-with-statements
+    #
+    "D100",    # undocumented-public-module
+    "D101",    # undocumented-public-class
+    "D102",    # undocumented-public-method
+    "D103",    # undocumented-public-function
+    "D104",    # undocumented-public-package
+    "D105",    # undocumented-magic-method
+    "D107",    # undocumented-public-init
+    "EM101",   # raw-string-in-exception
+    "FBT001",  # boolean-type-hint-positional-argument
+    "FBT002",  # boolean-default-value-positional-argument
+    "ISC001",  # single-line-implicit-string-concatenation
+    "PGH003",  # blanket-type-ignore
+    "PLR0913", # too-many-arguments
+    "PLR0915", # too-many-statements
+    "TRY003",  # raise-vanilla-args
+]
+unfixable = [
+    "F401", # unused-import
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["T201", "T203"]
+"demo/**/*.py" = ["INP001"]
+"tests/*.py" = ["INP001", "S101", "ANN201", "PLR2004", "E402"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+addopts = "-n auto"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.1",
+    "playwright>=1.58.0",
+    "pytest>=9.0.2",
+    "pytest-xdist>=3.8.0",
+]

@@ -1,0 +1,86 @@
+<div class="sam-prompter-container"
+     data-max-objects="${max_objects}"
+     data-point-radius="${point_radius}"
+     data-mask-alpha="${mask_alpha}">
+  <script type="application/json" class="prompt-data">${value}</script>
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="object-tabs"></div>
+      <button class="sp-btn add-object-btn" title="Add Object (N)">+ Add</button>
+    </div>
+    <div class="toolbar-right">
+      <button class="sp-btn undo-btn" title="Undo (Z)">Undo</button>
+      <button class="sp-btn clear-btn" title="Clear Object">Clear</button>
+      <button class="sp-btn clear-all-btn" title="Clear All">Clear All</button>
+      <button class="sp-btn image-toggle-btn active" title="Toggle Image (I)">Image</button>
+      <button class="sp-btn mask-toggle-btn active" title="Toggle Masks (M)">Masks</button>
+      <button class="sp-btn cutout-btn" title="Cutout View (C)">Cutout</button>
+      <button class="sp-btn move-btn" title="Move Mode (Space)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 16"/></svg></button>
+      <button class="sp-btn settings-btn active" title="View Settings (V)">&#9881;</button>
+      <button class="sp-btn maximize-btn" title="Maximize (F)">&#x26F6;</button>
+      <button class="sp-btn help-btn" title="Help (?)">?</button>
+      <button class="sp-btn clear-image-btn" title="Remove image">&times;</button>
+    </div>
+  </div>
+  <div class="settings-bar">
+    <div class="settings-group">
+      <span class="settings-label">Object color</span>
+      <div class="color-swatches obj-color-swatches"></div>
+    </div>
+    <div class="settings-group">
+      <span class="settings-label">Point size</span>
+      <input type="range" class="sp-slider point-size-slider" min="3" max="20" step="1">
+      <span class="slider-value point-size-value"></span>
+    </div>
+    <div class="settings-group">
+      <span class="settings-label">Box outline</span>
+      <input type="range" class="sp-slider box-line-width-slider" min="1" max="8" step="0.5">
+      <span class="slider-value box-line-width-value"></span>
+    </div>
+    <div class="settings-group">
+      <span class="settings-label">Mask opacity</span>
+      <input type="range" class="sp-slider mask-opacity-slider" min="0" max="100" step="1">
+      <span class="slider-value mask-opacity-value"></span>
+    </div>
+  </div>
+  <div class="canvas-wrapper">
+    <canvas></canvas>
+    <div class="coord-display"></div>
+    <div class="loading-indicator hidden">
+      <div class="spinner"></div>
+    </div>
+    <div class="drop-zone">
+      <input type="file" class="file-input" accept="image/*">
+      <span>Drop image here or click to upload</span>
+    </div>
+  </div>
+  <div class="help-overlay hidden">
+    <div class="help-content">
+      <h3>Keyboard Shortcuts</h3>
+      <table>
+        <tr><td><kbd>Left Click</kbd></td><td>Add foreground point</td></tr>
+        <tr><td><kbd>Right Click</kbd></td><td>Add background point</td></tr>
+        <tr><td><kbd>Left Drag</kbd></td><td>Draw bounding box</td></tr>
+        <tr><td><kbd>Alt + Click</kbd></td><td>Delete nearest point / box</td></tr>
+        <tr><td><kbd>1</kbd>–<kbd>8</kbd></td><td>Switch object</td></tr>
+        <tr><td><kbd>N</kbd></td><td>Add new object</td></tr>
+        <tr><td><kbd>Z</kbd></td><td>Undo last prompt</td></tr>
+        <tr><td><kbd>Delete</kbd></td><td>Delete active object</td></tr>
+        <tr><td><kbd>H</kbd></td><td>Toggle active object visibility</td></tr>
+        <tr><td><kbd>M</kbd></td><td>Toggle mask display</td></tr>
+        <tr><td><kbd>Space</kbd> (hold)</td><td>Temporary move mode</td></tr>
+        <tr><td><kbd>Scroll</kbd></td><td>Zoom in/out</td></tr>
+        <tr><td><kbd>+</kbd> / <kbd>-</kbd> / <kbd>0</kbd></td><td>Zoom in / out / reset</td></tr>
+        <tr><td><kbd>Middle Drag</kbd></td><td>Pan</td></tr>
+        <tr><td><kbd>Double-click</kbd></td><td>Reset zoom (move mode)</td></tr>
+        <tr><td><kbd>V</kbd></td><td>Toggle view settings</td></tr>
+        <tr><td><kbd>I</kbd></td><td>Toggle image visibility</td></tr>
+        <tr><td><kbd>C</kbd></td><td>Toggle cutout view (foreground only)</td></tr>
+        <tr><td><kbd>?</kbd></td><td>Toggle help</td></tr>
+        <tr><td><kbd>F</kbd></td><td>Toggle maximize</td></tr>
+        <tr><td><kbd>Escape</kbd></td><td>Cancel box drawing / close help / exit maximize</td></tr>
+      </table>
+      <button class="sp-btn help-close-btn">Close</button>
+    </div>
+  </div>
+</div>
