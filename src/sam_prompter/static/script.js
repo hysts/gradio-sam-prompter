@@ -1,6 +1,3 @@
-if (element._samPrompterInitialized) return;
-element._samPrompterInitialized = true;
-
 (function () {
     "use strict";
 
@@ -55,9 +52,9 @@ element._samPrompterInitialized = true;
         "#FF00FF", "#00CCCC", "#FF6600", "#9933FF",
         "#FFFFFF", "#000000", "#FF69B4", "#00FF80"
     ];
-    var maxObjects = parseInt(container.getAttribute("data-max-objects"), 10) || 8;
-    var pointRadius = parseInt(container.getAttribute("data-point-radius"), 10) || 6;
-    var maskAlpha = parseFloat(container.getAttribute("data-mask-alpha")) || 0.4;
+    var maxObjects = props.max_objects;
+    var pointRadius = props.point_radius;
+    var maskAlpha = props.mask_alpha;
     var boxLineWidth = 2;
 
     var _renderFrameId = null;
@@ -1025,7 +1022,6 @@ element._samPrompterInitialized = true;
         // Update maxObjects limit if Python specified it
         if (typeof data.maxObjects === "number" && data.maxObjects > 0) {
             maxObjects = data.maxObjects;
-            container.setAttribute("data-max-objects", maxObjects);
             // Trim objects if exceeding new limit
             while (state.objects.length > maxObjects) {
                 state.objects.pop();
