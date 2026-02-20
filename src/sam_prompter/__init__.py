@@ -81,10 +81,6 @@ class SamPrompter(gr.HTML):
         css_template = (_STATIC_DIR / "style.css").read_text(encoding="utf-8")
         js_on_load = (_STATIC_DIR / "script.js").read_text(encoding="utf-8")
 
-        html_template = html_template.replace("${max_objects}", str(max_objects))
-        html_template = html_template.replace("${point_radius}", str(point_radius))
-        html_template = html_template.replace("${mask_alpha}", str(mask_alpha))
-
         super().__init__(
             value=value,
             label=label,
@@ -93,6 +89,9 @@ class SamPrompter(gr.HTML):
             html_template=html_template,
             css_template=css_template,
             js_on_load=js_on_load,
+            max_objects=max_objects,
+            point_radius=point_radius,
+            mask_alpha=mask_alpha,
             **kwargs,
         )
 
@@ -183,7 +182,6 @@ class SamPrompter(gr.HTML):
             "width": img.width,
             "height": img.height,
             "masks": encoded_masks,
-            "colors": _COLOR_PALETTE,
         }
         if clear_prompts:
             payload["clearPrompts"] = True

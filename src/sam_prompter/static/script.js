@@ -50,10 +50,6 @@ element._samPrompterInitialized = true;
     var MIN_ZOOM = 1;
     var MAX_ZOOM = 20;
     var ZOOM_SENSITIVITY = 0.001;
-    var COLOR_PALETTE = [
-        "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4",
-        "#FFEAA7", "#DDA0DD", "#98D8C8", "#F7DC6F"
-    ];
     var VIEW_COLORS = [
         "#00CC00", "#0066FF", "#FF0000", "#FFCC00",
         "#FF00FF", "#00CCCC", "#FF6600", "#9933FF",
@@ -1109,12 +1105,6 @@ element._samPrompterInitialized = true;
             // Skip when the key is absent (JS echo in Svelte Phase 1).
             state.rawMasks = [];
             state.maskCanvases = [];
-        }
-
-        if (data.colors) {
-            for (var ci = 0; ci < data.colors.length && ci < COLOR_PALETTE.length; ci++) {
-                COLOR_PALETTE[ci] = data.colors[ci];
-            }
         }
 
         // If the user uploaded an image, keep displaying it (blob URL)
