@@ -1,5 +1,7 @@
 # SAM Prompter
 
+[![Demo](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/hysts-gradio-custom-html/sam-prompter-demo)
+
 Interactive Gradio component for [Segment Anything Model (SAM)](https://segment-anything.com/) prompt input and mask visualization. Built on `gr.HTML` with vanilla JavaScript — no custom JS framework required.
 
 Users can upload images, place foreground/background points, draw bounding boxes, and view predicted segmentation masks in real time, all within a single Gradio component.
