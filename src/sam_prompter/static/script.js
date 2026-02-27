@@ -33,7 +33,7 @@
     var maximizeBtn = container.querySelector(".maximize-btn");
     var cutoutBtn = container.querySelector(".cutout-btn");
 
-    var isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+    var isMac = /Mac|iPhone|iPad/i.test(navigator.userAgent);
     var ALT_KEY_LABEL = isMac ? "⌥ Option" : "Alt";
 
     // Patch help overlay to show platform-appropriate modifier key
