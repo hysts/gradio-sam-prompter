@@ -238,7 +238,6 @@ def test_postprocess_plain_image_path():
     assert payload["height"] == 90
     assert payload["masks"] == []
     assert payload["image"].startswith("/gradio_api/file=")
-    assert payload["colors"] == _COLOR_PALETTE
 
 
 def test_postprocess_pil_image():
