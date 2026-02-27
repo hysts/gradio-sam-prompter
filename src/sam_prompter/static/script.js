@@ -208,13 +208,8 @@
 
     // --- Coordinate transforms ---
 
-    function getCanvasDisplayRect() {
-        var rect = canvas.getBoundingClientRect();
-        return rect;
-    }
-
     function clientToNatural(clientX, clientY) {
-        var rect = getCanvasDisplayRect();
+        var rect = canvas.getBoundingClientRect();
         var displayX = clientX - rect.left;
         var displayY = clientY - rect.top;
         var scaleDisplay = canvas.width / rect.width;
@@ -240,7 +235,7 @@
     // Multiplying a screen-pixel size by this factor gives the
     // equivalent size in canvas (= natural image) coordinates.
     function getDisplayScale() {
-        var rect = getCanvasDisplayRect();
+        var rect = canvas.getBoundingClientRect();
         if (!rect.width) return 1;
         return canvas.width / rect.width;
     }
@@ -1263,7 +1258,7 @@
             }
 
             if (state.didDrag && state.zoom > 1) {
-                var rect = getCanvasDisplayRect();
+                var rect = canvas.getBoundingClientRect();
                 var cssToCanvasX = canvas.width / rect.width;
                 var cssToCanvasY = canvas.height / rect.height;
                 state.panX = state.panStartPanX + dx * cssToCanvasX;
@@ -1488,7 +1483,7 @@
         newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
 
         // Zoom toward cursor position
-        var rect = getCanvasDisplayRect();
+        var rect = canvas.getBoundingClientRect();
         var mx = (e.clientX - rect.left) * (canvas.width / rect.width);
         var my = (e.clientY - rect.top) * (canvas.height / rect.height);
 
