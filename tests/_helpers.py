@@ -93,6 +93,14 @@ def wait_for_masks_present(page: Page, *, timeout: float = 15_000) -> None:
 
 
 def upload_test_image(page: Page) -> None:
-    """Inject a synthetic image and wait until the component has loaded it."""
+    """Inject a synthetic image and wait until the component has rendered it.
+
+    After the image is loaded the component schedules ``renderAll()`` via
+    ``requestAnimationFrame``, which calls ``syncVisibility()`` to hide the
+    drop zone.  We wait for that rAF-deferred render to complete so callers
+    can assert on the visible state immediately.
+    """
     page.evaluate(UPLOAD_IMAGE_JS)
     wait_for_image_loaded(page)
+    # renderAll (which hides the drop zone) runs on the next animation frame
+    page.evaluate("() => new Promise(r => requestAnimationFrame(r))")

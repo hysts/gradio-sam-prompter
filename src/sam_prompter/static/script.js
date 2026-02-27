@@ -1706,18 +1706,12 @@
     // --- File upload (input) ---
 
     function uploadToServer(file) {
-        var formData = new FormData();
-        formData.append("files", file);
         var capturedUrl = state.objectUrl;
 
-        fetch("/gradio_api/upload", { method: "POST", body: formData })
-            .then(function (res) {
-                if (!res.ok) throw new Error("Upload failed: " + res.status);
-                return res.json();
-            })
-            .then(function (paths) {
+        upload(file)
+            .then(function (result) {
                 if (state.objectUrl !== capturedUrl) return;
-                state.filePath = paths[0];
+                state.filePath = result.path;
                 if (state.pendingEmit) {
                     state.pendingEmit = false;
                     emitPromptData();
