@@ -1,26 +1,8 @@
 """Playwright UI tests for the 'N' keyboard shortcut (add new object)."""
 
 from _demo import demo
+from _helpers import upload_test_image, wait_for_container
 from playwright.sync_api import Page, sync_playwright
-
-UPLOAD_IMAGE_JS = """() => {
-    return new Promise(function(resolve) {
-        var fi = document.querySelector('.sam-prompter-container .file-input');
-        var canvas = document.createElement('canvas');
-        canvas.width = 200; canvas.height = 150;
-        var ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgb(100,150,200)';
-        ctx.fillRect(0, 0, 200, 150);
-        canvas.toBlob(function(blob) {
-            var file = new File([blob], 'test.png', {type: 'image/png'});
-            var dt = new DataTransfer();
-            dt.items.add(file);
-            fi.files = dt.files;
-            fi.dispatchEvent(new Event('change', {bubbles: true}));
-            resolve(true);
-        }, 'image/png');
-    });
-}"""
 
 
 def _get_object_count(page: Page) -> int:
@@ -46,7 +28,7 @@ def test_n_key_adds_object_after_hover():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             before = _get_object_count(page)
             assert before == 1, f"Should start with 1 object, got {before}"
@@ -72,11 +54,10 @@ def test_n_key_after_canvas_click():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             # Upload image
-            page.evaluate(UPLOAD_IMAGE_JS)
-            page.wait_for_timeout(2000)
+            upload_test_image(page)
 
             before = _get_object_count(page)
             assert before == 1, f"Should start with 1 object, got {before}"
@@ -87,7 +68,7 @@ def test_n_key_after_canvas_click():
             page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
             page.wait_for_timeout(500)
 
-            # Press 'n' — mouse is still over the container
+            # Press 'n' -- mouse is still over the container
             page.keyboard.press("n")
             page.wait_for_timeout(300)
 
@@ -108,10 +89,9 @@ def test_n_key_after_image_upload():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
-            page.evaluate(UPLOAD_IMAGE_JS)
-            page.wait_for_timeout(2000)
+            upload_test_image(page)
 
             before = _get_object_count(page)
             assert before == 1, f"Should start with 1 object, got {before}"
@@ -137,7 +117,7 @@ def test_n_key_ignored_when_mouse_outside():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             before = _get_object_count(page)
             assert before == 1, f"Should start with 1 object, got {before}"
@@ -166,7 +146,7 @@ def test_n_key_after_clicking_add_button():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             # Click the + Add button (mouse is now over the container)
             page.click(".sam-prompter-container .add-object-btn")
@@ -175,7 +155,7 @@ def test_n_key_after_clicking_add_button():
             mid = _get_object_count(page)
             assert mid == 2, f"Should have 2 objects after clicking + Add, got {mid}"
 
-            # Press 'n' — mouse is still over the container
+            # Press 'n' -- mouse is still over the container
             page.keyboard.press("n")
             page.wait_for_timeout(300)
 
@@ -196,7 +176,7 @@ def test_n_key_while_slider_focused():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             before = _get_object_count(page)
             assert before == 1, f"Should start with 1 object, got {before}"
@@ -225,7 +205,7 @@ def test_multiple_n_presses():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             _hover_container(page)
 

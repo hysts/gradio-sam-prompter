@@ -6,26 +6,8 @@ round-trip is in flight and results are being rendered.
 """
 
 from _demo_slow import demo
+from _helpers import UPLOAD_IMAGE_JS
 from playwright.sync_api import Page, sync_playwright
-
-UPLOAD_IMAGE_JS = """() => {
-    return new Promise(function(resolve) {
-        var fi = document.querySelector('.sam-prompter-container .file-input');
-        var canvas = document.createElement('canvas');
-        canvas.width = 200; canvas.height = 150;
-        var ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgb(100,150,200)';
-        ctx.fillRect(0, 0, 200, 150);
-        canvas.toBlob(function(blob) {
-            var file = new File([blob], 'test.png', {type: 'image/png'});
-            var dt = new DataTransfer();
-            dt.items.add(file);
-            fi.files = dt.files;
-            fi.dispatchEvent(new Event('change', {bubbles: true}));
-            resolve(true);
-        }, 'image/png');
-    });
-}"""
 
 
 def _get_state(page: Page) -> dict:

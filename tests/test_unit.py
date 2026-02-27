@@ -2,10 +2,10 @@
 
 import json
 import tempfile
-from pathlib import Path
 
 import gradio as gr
 import numpy as np
+from _helpers import make_test_image
 from PIL import Image
 
 from sam_prompter import (
@@ -16,16 +16,6 @@ from sam_prompter import (
     _load_image,
     parse_prompt_value,
 )
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _make_test_image(directory: str | Path, name: str = "test.png", w: int = 100, h: int = 80) -> Path:
-    path = Path(directory) / name
-    Image.new("RGB", (w, h), color=(100, 150, 200)).save(path)
-    return path
 
 
 def _decode_rle(rle: dict) -> np.ndarray:
@@ -47,7 +37,7 @@ def _decode_rle(rle: dict) -> np.ndarray:
 
 def test_load_image_from_path_string():
     with tempfile.TemporaryDirectory() as d:
-        p = _make_test_image(d)
+        p = make_test_image(d)
         img = _load_image(str(p))
     assert isinstance(img, Image.Image)
     assert img.mode == "RGB"
@@ -56,7 +46,7 @@ def test_load_image_from_path_string():
 
 def test_load_image_from_path_object():
     with tempfile.TemporaryDirectory() as d:
-        p = _make_test_image(d)
+        p = make_test_image(d)
         img = _load_image(p)
     assert isinstance(img, Image.Image)
     assert img.mode == "RGB"
@@ -239,7 +229,7 @@ def test_postprocess_none():
 
 def test_postprocess_plain_image_path():
     with tempfile.TemporaryDirectory() as d:
-        p = _make_test_image(d, w=120, h=90)
+        p = make_test_image(d, w=120, h=90)
         with gr.Blocks():
             comp = SamPrompter()
         result = comp.postprocess(str(p))

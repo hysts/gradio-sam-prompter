@@ -1,8 +1,4 @@
-"""Minimal Gradio demo for UI tests.
-
-This module provides a lightweight SamPrompter demo without initial value,
-isolating tests from the showcase demo's preset state.
-"""
+"""Minimal Gradio demo with max_objects=2 for boundary tests."""
 
 import json
 
@@ -42,7 +38,7 @@ def mock_inference(
     return (image, masks), json.dumps(data, indent=2)
 
 
-with gr.Blocks(title="SAM Prompter Test") as demo:
-    prompter = SamPrompter(label="SAM Prompter")
+with gr.Blocks(title="SAM Prompter Max2 Test") as demo:
+    prompter = SamPrompter(label="SAM Prompter", max_objects=2)
     debug_json = gr.JSON(label="Prompt Data (debug)")
     prompter.input(fn=mock_inference, inputs=prompter, outputs=[prompter, debug_json])

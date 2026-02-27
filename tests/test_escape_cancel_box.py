@@ -1,26 +1,8 @@
 """Playwright UI tests for Escape key cancelling box drawing."""
 
 from _demo import demo
+from _helpers import upload_test_image, wait_for_container
 from playwright.sync_api import Page, sync_playwright
-
-UPLOAD_IMAGE_JS = """() => {
-    return new Promise(function(resolve) {
-        var fi = document.querySelector('.sam-prompter-container .file-input');
-        var canvas = document.createElement('canvas');
-        canvas.width = 200; canvas.height = 150;
-        var ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgb(100,150,200)';
-        ctx.fillRect(0, 0, 200, 150);
-        canvas.toBlob(function(blob) {
-            var file = new File([blob], 'test.png', {type: 'image/png'});
-            var dt = new DataTransfer();
-            dt.items.add(file);
-            fi.files = dt.files;
-            fi.dispatchEvent(new Event('change', {bubbles: true}));
-            resolve(true);
-        }, 'image/png');
-    });
-}"""
 
 
 def _get_state(page: Page) -> dict:
@@ -47,11 +29,10 @@ def test_escape_cancels_box_drawing():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             # Upload image
-            page.evaluate(UPLOAD_IMAGE_JS)
-            page.wait_for_timeout(1500)
+            upload_test_image(page)
 
             canvas = page.locator(".sam-prompter-container canvas")
             box = canvas.bounding_box()
@@ -99,10 +80,9 @@ def test_escape_cancel_then_mouseup_no_point():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
-            page.evaluate(UPLOAD_IMAGE_JS)
-            page.wait_for_timeout(1500)
+            upload_test_image(page)
 
             canvas = page.locator(".sam-prompter-container canvas")
             box = canvas.bounding_box()
@@ -141,10 +121,9 @@ def test_box_drawing_works_after_escape_cancel():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
-            page.evaluate(UPLOAD_IMAGE_JS)
-            page.wait_for_timeout(1500)
+            upload_test_image(page)
 
             canvas = page.locator(".sam-prompter-container canvas")
             box = canvas.bounding_box()
@@ -194,10 +173,9 @@ def test_click_works_after_escape_cancel():
             page = browser.new_page()
             page.set_default_timeout(10000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
-            page.evaluate(UPLOAD_IMAGE_JS)
-            page.wait_for_timeout(1500)
+            upload_test_image(page)
 
             canvas = page.locator(".sam-prompter-container canvas")
             box = canvas.bounding_box()

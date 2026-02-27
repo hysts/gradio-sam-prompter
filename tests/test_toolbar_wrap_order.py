@@ -7,6 +7,7 @@ appear ABOVE toolbar-left (via CSS flex-wrap: wrap-reverse).
 """
 
 from _demo import demo
+from _helpers import wait_for_container
 from playwright.sync_api import sync_playwright
 
 
@@ -35,7 +36,7 @@ def test_toolbar_same_row_when_wide():
             page.set_viewport_size({"width": 1280, "height": 720})
             page.set_default_timeout(5000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             pos = _get_toolbar_positions(page)
             assert pos is not None, "Toolbar elements should exist"
@@ -68,7 +69,7 @@ def test_toolbar_right_above_left_when_narrow():
             page.set_viewport_size({"width": 360, "height": 720})
             page.set_default_timeout(5000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             pos = _get_toolbar_positions(page)
             assert pos is not None, "Toolbar elements should exist"

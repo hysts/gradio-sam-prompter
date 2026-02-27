@@ -26,7 +26,7 @@ _COLOR_PALETTE = [
 class _ClearPrompts:
     """Wrapper that signals the frontend to clear all user-drawn prompts."""
 
-    __slots__ = ("value", "max_objects")
+    __slots__ = ("max_objects", "value")
 
     def __init__(
         self,

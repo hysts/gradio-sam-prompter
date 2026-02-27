@@ -1,6 +1,7 @@
 """Playwright UI tests for platform-aware Alt/Option key label in help overlay."""
 
 from _demo import demo
+from _helpers import wait_for_container
 from playwright.sync_api import sync_playwright
 
 
@@ -13,7 +14,7 @@ def test_help_shows_alt_on_non_mac():
             page = browser.new_page()
             page.set_default_timeout(5000)
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             # Open help overlay
             page.click(".sam-prompter-container .help-btn")
@@ -50,15 +51,20 @@ def test_help_shows_option_on_mac():
             page = context.new_page()
             page.set_default_timeout(5000)
 
-            # Spoof navigator.platform to MacIntel before any scripts run
+            # Spoof navigator.userAgent to a Mac-like UA string before any scripts run.
+            # The source code (script.js:36) uses navigator.userAgent, not navigator.platform.
             page.add_init_script("""
-                Object.defineProperty(navigator, 'platform', {
-                    get: function() { return 'MacIntel'; }
+                Object.defineProperty(navigator, 'userAgent', {
+                    get: function() {
+                        return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                             + 'AppleWebKit/537.36 (KHTML, like Gecko) '
+                             + 'Chrome/120.0.0.0 Safari/537.36';
+                    }
                 });
             """)
 
             page.goto(url)
-            page.wait_for_timeout(1000)
+            wait_for_container(page)
 
             # Open help overlay
             page.click(".sam-prompter-container .help-btn")

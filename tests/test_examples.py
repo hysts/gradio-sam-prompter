@@ -7,21 +7,11 @@ from pathlib import Path
 import gradio as gr
 import numpy as np
 from _demo_examples import demo
+from _helpers import make_test_image, wait_for_container, wait_for_image_loaded
 from PIL import Image
 from playwright.sync_api import sync_playwright
 
 from sam_prompter import SamPrompter
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _make_test_image(directory: str | Path, name: str = "test.png", w: int = 100, h: int = 80) -> Path:
-    path = Path(directory) / name
-    Image.new("RGB", (w, h), color=(100, 150, 200)).save(path)
-    return path
-
 
 # ---------------------------------------------------------------------------
 # Unit tests — process_example()
@@ -36,7 +26,7 @@ def test_process_example_none_returns_none():
 
 def test_process_example_path_returns_img_tag():
     with tempfile.TemporaryDirectory() as d:
-        p = _make_test_image(d)
+        p = make_test_image(d)
         with gr.Blocks():
             comp = SamPrompter()
         result = comp.process_example(str(p))
@@ -69,7 +59,7 @@ def test_process_example_numpy_returns_img_tag():
 def test_process_example_tuple_uses_first_element():
     """(image, masks) tuple — only image is used for the thumbnail."""
     with tempfile.TemporaryDirectory() as d:
-        p = _make_test_image(d)
+        p = make_test_image(d)
         with gr.Blocks():
             comp = SamPrompter()
         result = comp.process_example((str(p), [{"mask": np.zeros((80, 100), dtype=np.uint8)}]))
@@ -80,7 +70,7 @@ def test_process_example_tuple_uses_first_element():
 def test_process_example_cached_file_is_webp():
     """The cached thumbnail should be saved as webp."""
     with tempfile.TemporaryDirectory() as d:
-        p = _make_test_image(d)
+        p = make_test_image(d)
         with gr.Blocks():
             comp = SamPrompter()
         result = comp.process_example(str(p))
@@ -105,7 +95,7 @@ def test_examples_gallery_shows_thumbnails():
             page = browser.new_page()
             page.set_default_timeout(10_000)
             page.goto(url)
-            page.wait_for_timeout(2000)
+            wait_for_container(page)
 
             count = page.locator('img[alt="example"]').count()
             assert count >= 2, f"Expected >= 2 example thumbnails, got {count}"
@@ -124,7 +114,7 @@ def test_examples_thumbnails_not_oversized():
             page = browser.new_page()
             page.set_default_timeout(10_000)
             page.goto(url)
-            page.wait_for_timeout(2000)
+            wait_for_container(page)
 
             imgs = page.locator('img[alt="example"]')
             count = imgs.count()
@@ -133,10 +123,7 @@ def test_examples_thumbnails_not_oversized():
             for i in range(count):
                 box = imgs.nth(i).bounding_box()
                 assert box is not None, f"Thumbnail {i} has no bounding box"
-                assert box["height"] <= 100, (
-                    f"Thumbnail {i} is too tall: {box['height']:.0f}px "
-                    f"(expected <= 100px)"
-                )
+                assert box["height"] <= 100, f"Thumbnail {i} is too tall: {box['height']:.0f}px (expected <= 100px)"
 
             browser.close()
     finally:
@@ -152,7 +139,7 @@ def test_examples_click_loads_image():
             page = browser.new_page()
             page.set_default_timeout(10_000)
             page.goto(url)
-            page.wait_for_timeout(2000)
+            wait_for_container(page)
 
             # Drop zone visible before loading
             assert page.evaluate(
@@ -161,7 +148,7 @@ def test_examples_click_loads_image():
 
             # Click the first example thumbnail
             page.locator('img[alt="example"]').first.click()
-            page.wait_for_timeout(3000)
+            wait_for_image_loaded(page)
 
             # Drop zone should be hidden (image loaded)
             assert page.evaluate(
