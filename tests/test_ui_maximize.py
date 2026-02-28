@@ -23,12 +23,12 @@ def test_maximize_persists_after_canvas_click():
             page.click(".sam-prompter-container .maximize-btn")
             page.wait_for_timeout(300)
 
-            # Verify container is maximized
+            # Verify element wrapper is maximized
             is_maximized = page.evaluate("""() => {
                 var c = document.querySelector('.sam-prompter-container');
-                return c.classList.contains('maximized');
+                return c.parentElement.classList.contains('sp-maximized');
             }""")
-            assert is_maximized, "Container should have 'maximized' class after clicking maximize"
+            assert is_maximized, "Element wrapper should have 'sp-maximized' class after clicking maximize"
 
             # Click on the canvas to add a point (triggers emitPromptData -> Gradio round-trip)
             canvas = page.locator(".sam-prompter-container canvas")
@@ -41,12 +41,14 @@ def test_maximize_persists_after_canvas_click():
             # Wait for the full Gradio round-trip (3 Svelte phases)
             wait_for_inference_complete(page)
 
-            # Container should STILL be maximized
+            # Element wrapper should STILL be maximized
             still_maximized = page.evaluate("""() => {
                 var c = document.querySelector('.sam-prompter-container');
-                return c.classList.contains('maximized');
+                return c.parentElement.classList.contains('sp-maximized');
             }""")
-            assert still_maximized, "Container should still have 'maximized' class after canvas click + round-trip"
+            assert still_maximized, (
+                "Element wrapper should still have 'sp-maximized' class after canvas click + round-trip"
+            )
 
             # JS state should agree
             state_maximized = page.evaluate("""() => {

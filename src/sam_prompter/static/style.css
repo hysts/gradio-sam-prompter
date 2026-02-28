@@ -15,8 +15,8 @@
     color: var(--body-text-color, #333333);
 }
 
-/* Maximized state */
-.sam-prompter-container.maximized {
+/* Maximized state (class on element wrapper, outside morph scope) */
+&.sp-maximized .sam-prompter-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -28,13 +28,13 @@
     flex-direction: column;
 }
 
-.sam-prompter-container.maximized .canvas-wrapper {
+&.sp-maximized .canvas-wrapper {
     flex: 1;
     min-height: 0;
     border-radius: 0;
 }
 
-.sam-prompter-container.maximized .maximize-btn {
+&.sp-maximized .maximize-btn {
     background: var(--color-accent, #2196F3);
     color: #fff;
     border-color: var(--color-accent, #2196F3);
@@ -410,12 +410,12 @@
     width: 100%;
 }
 
-/* Processing lock */
-.sam-prompter-container.is-processing .canvas-wrapper {
+/* Processing lock (class on element wrapper, outside morph scope) */
+&.sp-processing .canvas-wrapper {
     cursor: wait;
 }
 
-.sam-prompter-container.is-processing canvas {
+&.sp-processing canvas {
     pointer-events: none;
 }
 

@@ -4,7 +4,6 @@ from collections.abc import Callable
 import gradio as gr
 import numpy as np
 from PIL import Image, ImageDraw
-
 from sam_prompter import SamPrompter
 
 MOCK_MASK_RADIUS = 50

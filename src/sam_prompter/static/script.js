@@ -276,10 +276,30 @@
         requestRender();
     }
 
+    // Pin opacity on ancestor elements so Gradio's "pending" class
+    // (which sets opacity < 1) cannot create a stacking context that
+    // traps the fullscreen overlay.
+    var _pinnedAncestors = [];
+    function pinAncestorOpacity() {
+        // Remove previous pins
+        for (var i = 0; i < _pinnedAncestors.length; i++) {
+            _pinnedAncestors[i].style.removeProperty("opacity");
+        }
+        _pinnedAncestors = [];
+        if (!state.maximized) return;
+        var node = element.parentElement;
+        while (node && node !== document.body && node !== document.documentElement) {
+            node.style.setProperty("opacity", "1", "important");
+            _pinnedAncestors.push(node);
+            node = node.parentElement;
+        }
+    }
+
     function toggleMaximize() {
         state.maximized = !state.maximized;
-        container.classList.toggle("maximized", state.maximized);
+        element.classList.toggle("sp-maximized", state.maximized);
         document.body.style.overflow = state.maximized ? "hidden" : "";
+        pinAncestorOpacity();
         if (state.image) {
             requestAnimationFrame(function () {
                 resizeCanvas();
@@ -293,7 +313,7 @@
     }
 
     function updateCanvasCursor() {
-        container.classList.toggle("is-processing", state.isProcessing);
+        element.classList.toggle("sp-processing", state.isProcessing);
         if (state.isProcessing) return;
         if (isMoveModeActive()) {
             canvas.style.cursor = state.isPanning ? "grabbing" : (state.zoom > 1 ? "grab" : "default");
@@ -389,9 +409,10 @@
             settingsBtn.classList.remove("active");
         }
         // Restore maximized state
-        var wasMaximized = container.classList.contains("maximized");
-        container.classList.toggle("maximized", state.maximized);
+        var wasMaximized = element.classList.contains("sp-maximized");
+        element.classList.toggle("sp-maximized", state.maximized);
         document.body.style.overflow = state.maximized ? "hidden" : "";
+        pinAncestorOpacity();
         // After restoring the class the wrapper dimensions change;
         // schedule a resize so the canvas fits the new layout.
         if (state.maximized && !wasMaximized && state.image) {
@@ -1158,6 +1179,18 @@
 
     var observer = new MutationObserver(function () {
         handleDataUpdate();
+        // Re-pin after every Gradio round-trip in case the "pending"
+        // class was re-applied to an ancestor during the update.
+        pinAncestorOpacity();
+        // In maximized mode, Gradio's morph may alter layout before
+        // resizeCanvas() runs above.  Schedule a deferred resize so
+        // the canvas fits the settled wrapper dimensions.
+        if (state.maximized && state.image) {
+            requestAnimationFrame(function () {
+                resizeCanvas();
+                requestRender();
+            });
+        }
     });
     observer.observe(dataScript, { childList: true, characterData: true, subtree: true });
 
@@ -1181,22 +1214,6 @@
         }
     });
     settingsObserver.observe(settingsBar, { attributes: true, attributeFilter: ["class"] });
-
-    // Restore maximized / is-processing classes if Gradio resets the
-    // container's class attribute via its DOM-diffing algorithm.
-    var containerObserver = new MutationObserver(function () {
-        var shouldBeMaximized = state.maximized;
-        var isMaximized = container.classList.contains("maximized");
-        if (shouldBeMaximized !== isMaximized) {
-            syncVisibility();
-        }
-        var shouldBeProcessing = state.isProcessing;
-        var isProcessing = container.classList.contains("is-processing");
-        if (shouldBeProcessing !== isProcessing) {
-            container.classList.toggle("is-processing", shouldBeProcessing);
-        }
-    });
-    containerObserver.observe(container, { attributes: true, attributeFilter: ["class"] });
 
     // --- Mouse events ---
 

@@ -18,7 +18,7 @@ def _get_state(page: Page) -> dict:
         var obj = s.objects[s.activeObjectIndex];
         return {
             isProcessing: s.isProcessing,
-            isProcessingClass: c.classList.contains('is-processing'),
+            isProcessingClass: c.parentElement.classList.contains('sp-processing'),
             points: obj.points.length,
             labels: obj.labels.slice(),
             boxes: obj.boxes.length,
