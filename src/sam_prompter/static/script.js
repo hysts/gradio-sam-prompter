@@ -1067,6 +1067,11 @@
         // Decode masks (store raw for re-decoding, decode at alpha=1.0 for globalAlpha control)
         if (data.masks && data.masks.length > 0) {
             var numMasks = data.masks.length;
+            // Ensure enough objects exist to hold all server-sent masks
+            // (e.g. initial value with multiple masks on a fresh component).
+            while (state.objects.length < numMasks) {
+                state.objects.push(createEmptyObject(state.objects.length));
+            }
             var numObjects = state.objects.length;
 
             // Initialize sparse arrays (one slot per object, null = no mask)
@@ -1157,7 +1162,15 @@
                 state.naturalWidth = data.width || img.naturalWidth;
                 state.naturalHeight = data.height || img.naturalHeight;
                 if (!isMaskUpdate) {
-                    state.objects = [createEmptyObject(0)];
+                    var initMasks = (data.masks && data.masks.length) || 0;
+                    if (initMasks > 1) {
+                        state.objects = [];
+                        for (var oi = 0; oi < initMasks; oi++) {
+                            state.objects.push(createEmptyObject(oi));
+                        }
+                    } else {
+                        state.objects = [createEmptyObject(0)];
+                    }
                     state.activeObjectIndex = 0;
                     state.zoom = 1;
                     state.panX = 0;
