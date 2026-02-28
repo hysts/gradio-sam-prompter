@@ -218,7 +218,7 @@ The `_encode_mask_to_rle` function flattens the mask in Fortran (column-major) o
 ## Demo
 
 ```bash
-uv run python demo/showcase/app.py
+cd demo/showcase && uv run python app.py
 ```
 
 The showcase demo provides preset examples: single mask, multi-object masks, custom colors, and varying alpha — plus interactive mock inference.
@@ -226,9 +226,9 @@ The showcase demo provides preset examples: single mask, multi-object masks, cus
 Model-specific demos are also available (require `transformers`, `torch`, and `spaces`):
 
 ```bash
-uv run python demo/sam/app.py     # SAM (facebook/sam-vit-base)
-uv run python demo/sam2/app.py    # SAM2 (facebook/sam2.1-hiera-small)
-uv run python demo/sam3/app.py    # SAM3 (facebook/sam3)
+cd demo/sam  && uv run python app.py   # SAM (facebook/sam-vit-base)
+cd demo/sam2 && uv run python app.py   # SAM2 (facebook/sam2.1-hiera-small)
+cd demo/sam3 && uv run python app.py   # SAM3 (facebook/sam3)
 ```
 
 ## Testing
