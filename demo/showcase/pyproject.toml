@@ -1,0 +1,25 @@
+[project]
+name = "showcase-demo"
+version = "0.1.0"
+description = "Showcase demo for sam-prompter mask overlays"
+requires-python = ">=3.12"
+dependencies = [
+    "sam-prompter",
+    "gradio>=6.8.0",
+    "Pillow>=12.1.1",
+    "numpy>=2.4.2",
+]
+
+[tool.uv.sources]
+sam-prompter = { path = "../../", editable = true }
+
+[tool.ruff]
+extend = "../../pyproject.toml"
+
+[tool.ruff.lint.per-file-ignores]
+"*.py" = ["INP001"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.4",
+]
