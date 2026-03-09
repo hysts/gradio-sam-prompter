@@ -658,51 +658,6 @@
         }
         objectTabsEl.innerHTML = html;
 
-        // Bind tab clicks
-        var tabs = objectTabsEl.querySelectorAll(".object-tab");
-        for (var t = 0; t < tabs.length; t++) {
-            (function (tab) {
-                tab.addEventListener("click", function (e) {
-                    if (e.target.classList.contains("delete-tab") || e.target.getAttribute("data-delete") !== null) {
-                        return;
-                    }
-                    if (e.target.classList.contains("visibility-toggle") || e.target.getAttribute("data-vis") !== null) {
-                        return;
-                    }
-                    var idx = parseInt(tab.getAttribute("data-index"), 10);
-                    state.activeObjectIndex = idx;
-                    renderToolbar();
-                    requestRender();
-                });
-            })(tabs[t]);
-        }
-
-        // Bind visibility toggle clicks
-        var visBtns = objectTabsEl.querySelectorAll(".visibility-toggle");
-        for (var vi = 0; vi < visBtns.length; vi++) {
-            (function (btn) {
-                btn.addEventListener("click", function (e) {
-                    e.stopPropagation();
-                    var idx = parseInt(btn.getAttribute("data-vis"), 10);
-                    state.objects[idx].visible = !state.objects[idx].visible;
-                    renderToolbar();
-                    requestRender();
-                });
-            })(visBtns[vi]);
-        }
-
-        // Bind delete clicks
-        var deleteBtns = objectTabsEl.querySelectorAll(".delete-tab");
-        for (var d = 0; d < deleteBtns.length; d++) {
-            (function (btn) {
-                btn.addEventListener("click", function (e) {
-                    e.stopPropagation();
-                    var idx = parseInt(btn.getAttribute("data-delete"), 10);
-                    deleteObject(idx);
-                });
-            })(deleteBtns[d]);
-        }
-
         // Update add button state
         addObjectBtn.disabled = state.objects.length >= maxObjects;
 
@@ -1654,6 +1609,38 @@
                 updateCanvasCursor();
                 e.preventDefault();
                 break;
+        }
+    });
+
+    // --- Object tab events (event delegation — survives innerHTML rebuilds) ---
+
+    objectTabsEl.addEventListener("click", function (e) {
+        var target = e.target;
+        while (target && target !== objectTabsEl) {
+            // Delete button
+            var delAttr = target.getAttribute("data-delete");
+            if (delAttr !== null) {
+                deleteObject(parseInt(delAttr, 10));
+                return;
+            }
+            // Visibility toggle
+            var visAttr = target.getAttribute("data-vis");
+            if (visAttr !== null) {
+                var vi = parseInt(visAttr, 10);
+                state.objects[vi].visible = !state.objects[vi].visible;
+                renderToolbar();
+                requestRender();
+                return;
+            }
+            // Tab body (switch active object)
+            if (target.classList.contains("object-tab")) {
+                var idx = parseInt(target.getAttribute("data-index"), 10);
+                state.activeObjectIndex = idx;
+                renderToolbar();
+                requestRender();
+                return;
+            }
+            target = target.parentElement;
         }
     });
 

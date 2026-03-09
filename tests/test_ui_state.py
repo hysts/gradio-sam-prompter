@@ -97,6 +97,131 @@ def test_no_backend_call_on_image_upload():
         demo.close()
 
 
+def test_object_tab_click_switches_active_object():
+    """Clicking an object tab should switch the active object index."""
+    _, url, _ = demo.launch(prevent_thread_lock=True)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_default_timeout(10000)
+            page.goto(url)
+            wait_for_container(page)
+
+            # Add a second object
+            page.click(".sam-prompter-container .add-object-btn")
+            page.wait_for_timeout(200)
+
+            # Active should be object 1 (index 1)
+            assert page.evaluate("""() => {
+                return document.querySelector('.sam-prompter-container').__samPrompterState.activeObjectIndex;
+            }""") == 1
+
+            # Click the first object tab
+            page.evaluate("""() => {
+                document.querySelectorAll('.sam-prompter-container .object-tab')[0].click();
+            }""")
+            page.wait_for_timeout(200)
+
+            result = page.evaluate("""() => {
+                var s = document.querySelector('.sam-prompter-container').__samPrompterState;
+                var tab = document.querySelectorAll('.sam-prompter-container .object-tab')[0];
+                return {
+                    activeIndex: s.activeObjectIndex,
+                    tabHasActiveClass: tab.classList.contains('active')
+                };
+            }""")
+            assert result["activeIndex"] == 0, f"Active index should be 0, got {result['activeIndex']}"
+            assert result["tabHasActiveClass"], "First tab should have .active class"
+
+            browser.close()
+    finally:
+        demo.close()
+
+
+def test_visibility_toggle_hides_object():
+    """Clicking the visibility toggle on a tab should toggle the object's visible state."""
+    _, url, _ = demo.launch(prevent_thread_lock=True)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_default_timeout(10000)
+            page.goto(url)
+            wait_for_container(page)
+
+            # Object 0 should be visible by default
+            assert page.evaluate("""() => {
+                return document.querySelector('.sam-prompter-container').__samPrompterState.objects[0].visible;
+            }"""), "Object 0 should be visible initially"
+
+            # Click the visibility toggle on the first tab
+            page.evaluate("""() => {
+                document.querySelector('.sam-prompter-container .object-tab .visibility-toggle').click();
+            }""")
+            page.wait_for_timeout(200)
+
+            result = page.evaluate("""() => {
+                var s = document.querySelector('.sam-prompter-container').__samPrompterState;
+                var tab = document.querySelector('.sam-prompter-container .object-tab');
+                return {
+                    visible: s.objects[0].visible,
+                    tabHasHiddenClass: tab.classList.contains('hidden-object')
+                };
+            }""")
+            assert not result["visible"], "Object 0 should be hidden after toggle"
+            assert result["tabHasHiddenClass"], "Tab should have .hidden-object class"
+
+            browser.close()
+    finally:
+        demo.close()
+
+
+def test_delete_tab_removes_object():
+    """Clicking the delete button on a tab should remove that object."""
+    _, url, _ = demo.launch(prevent_thread_lock=True)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_default_timeout(10000)
+            page.goto(url)
+            wait_for_container(page)
+
+            # Add two more objects (3 total)
+            page.click(".sam-prompter-container .add-object-btn")
+            page.wait_for_timeout(100)
+            page.click(".sam-prompter-container .add-object-btn")
+            page.wait_for_timeout(200)
+
+            assert page.evaluate("""() => {
+                return document.querySelector('.sam-prompter-container').__samPrompterState.objects.length;
+            }""") == 3, "Should have 3 objects"
+
+            # Click the delete button on the second tab (index 1)
+            page.evaluate("""() => {
+                var btn = document.querySelector(
+                    '.sam-prompter-container .object-tab [data-delete="1"]'
+                );
+                btn.click();
+            }""")
+            page.wait_for_timeout(200)
+
+            result = page.evaluate("""() => {
+                var s = document.querySelector('.sam-prompter-container').__samPrompterState;
+                return {
+                    numObjects: s.objects.length,
+                    numTabs: document.querySelectorAll('.sam-prompter-container .object-tab').length
+                };
+            }""")
+            assert result["numObjects"] == 2, f"Should have 2 objects after delete, got {result['numObjects']}"
+            assert result["numTabs"] == 2, f"Should have 2 tabs after delete, got {result['numTabs']}"
+
+            browser.close()
+    finally:
+        demo.close()
+
+
 def test_no_backend_call_on_add_empty_object():
     """Adding an empty object should not trigger a backend call or reset masks."""
     _, url, _ = demo.launch(prevent_thread_lock=True)
