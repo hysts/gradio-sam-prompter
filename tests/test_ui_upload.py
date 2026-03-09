@@ -4,6 +4,10 @@ from _demo import demo
 from _helpers import upload_test_image, wait_for_container, wait_for_inference_complete
 from playwright.sync_api import sync_playwright
 
+_DZ = ".sam-prompter-container .drop-zone"
+_DZ_HIDDEN = f"getComputedStyle(document.querySelector('{_DZ}')).display === 'none'"
+_DZ_VISIBLE = f"getComputedStyle(document.querySelector('{_DZ}')).display !== 'none'"
+
 
 def test_image_upload_persists():
     """After uploading an image the drop zone should stay hidden and canvas should be visible."""
@@ -20,19 +24,13 @@ def test_image_upload_persists():
             upload_test_image(page)
 
             # Check drop zone is hidden immediately after upload
-            assert page.evaluate(
-                "document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
-            ), "Drop zone should be hidden after upload"
+            assert page.evaluate(_DZ_HIDDEN), "Drop zone should be hidden after upload"
 
             # Wait for Python round-trip (change -> mock_inference -> postprocess)
             wait_for_inference_complete(page)
 
             # Drop zone should STILL be hidden after Python responds
-            still_hidden = page.evaluate("""() => {
-                var dz = document.querySelector('.sam-prompter-container .drop-zone');
-                return dz.classList.contains('hidden');
-            }""")
-            assert still_hidden, "Drop zone should still be hidden after Python round-trip"
+            assert page.evaluate(_DZ_HIDDEN), "Drop zone should still be hidden after Python round-trip"
 
             browser.close()
     finally:
@@ -54,15 +52,11 @@ def test_click_on_canvas_adds_point_not_upload():
             upload_test_image(page)
 
             # Verify upload succeeded
-            assert page.evaluate(
-                "document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
-            ), "Drop zone should be hidden"
+            assert page.evaluate(_DZ_HIDDEN), "Drop zone should be hidden"
 
             # Wait for full round-trip
             wait_for_inference_complete(page)
-            assert page.evaluate(
-                "document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
-            ), "Drop zone should still be hidden after round-trip"
+            assert page.evaluate(_DZ_HIDDEN), "Drop zone should still be hidden after round-trip"
 
             # Click on the canvas center to add a foreground point
             canvas = page.locator(".sam-prompter-container canvas")
@@ -74,9 +68,7 @@ def test_click_on_canvas_adds_point_not_upload():
             page.wait_for_timeout(500)
 
             # Drop zone should still be hidden (click should NOT trigger upload)
-            assert page.evaluate(
-                "document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
-            ), "Drop zone should be hidden after clicking canvas"
+            assert page.evaluate(_DZ_HIDDEN), "Drop zone should be hidden after clicking canvas"
 
             # Verify a point was added by checking the canvas has drawn content
             has_point = page.evaluate("""() => {
@@ -113,18 +105,14 @@ def test_clear_image_resets():
             upload_test_image(page)
 
             # Verify upload succeeded
-            assert page.evaluate(
-                "document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
-            ), "Drop zone should be hidden after upload"
+            assert page.evaluate(_DZ_HIDDEN), "Drop zone should be hidden after upload"
 
             # Click the clear image button (x)
             page.click(".sam-prompter-container .clear-image-btn")
             page.wait_for_timeout(500)
 
             # Drop zone should be visible again
-            assert not page.evaluate(
-                "document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
-            ), "Drop zone should be visible after clearing image"
+            assert page.evaluate(_DZ_VISIBLE), "Drop zone should be visible after clearing image"
 
             browser.close()
     finally:

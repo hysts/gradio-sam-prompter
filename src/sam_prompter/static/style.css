@@ -207,8 +207,15 @@
     flex-wrap: wrap;
 }
 
-.sam-prompter-container .settings-bar.hidden {
+/* Settings bar hidden (class on element wrapper, outside morph scope) */
+&.sp-settings-hidden .settings-bar {
     display: none;
+}
+
+&.sp-settings-hidden .settings-btn {
+    background: var(--background-fill-primary, #ffffff);
+    color: var(--body-text-color, #333333);
+    border-color: var(--border-color-primary, #e0e0e0);
 }
 
 .sam-prompter-container .settings-group {
@@ -480,7 +487,8 @@
     transition: border-color 0.2s, background 0.2s;
 }
 
-.sam-prompter-container .drop-zone.hidden {
+/* Drop zone hidden (class on element wrapper, outside morph scope) */
+&.sp-has-image .drop-zone {
     display: none;
 }
 

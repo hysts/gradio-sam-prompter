@@ -38,10 +38,10 @@ def test_settings_persist_after_image_upload():
             }""")
             assert post_obj_swatches > 0, "Object color swatches should persist after Python round-trip"
 
-            # Settings bar should be visible (not hidden)
+            # Settings bar should be visible
             settings_visible = page.evaluate("""() => {
                 var bar = document.querySelector('.sam-prompter-container .settings-bar');
-                return bar && !bar.classList.contains('hidden');
+                return bar && getComputedStyle(bar).display !== 'none';
             }""")
             assert settings_visible, "Settings bar should be visible after round-trip"
 
@@ -183,8 +183,8 @@ def test_toolbar_buttons_clickable_without_image():
             wait_for_container(page)
 
             # Drop zone should be visible (no image loaded)
-            assert not page.evaluate(
-                "document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
+            assert page.evaluate(
+                "getComputedStyle(document.querySelector('.sam-prompter-container .drop-zone')).display !== 'none'"
             ), "Drop zone should be visible when no image is loaded"
 
             # Click the help button -- should open the help overlay, not trigger file upload
@@ -207,7 +207,7 @@ def test_toolbar_buttons_clickable_without_image():
 
             settings_hidden = page.evaluate("""() => {
                 var bar = document.querySelector('.sam-prompter-container .settings-bar');
-                return bar && bar.classList.contains('hidden');
+                return bar && getComputedStyle(bar).display === 'none';
             }""")
             assert settings_hidden, "Settings bar should be hidden after clicking settings button"
 
@@ -217,7 +217,7 @@ def test_toolbar_buttons_clickable_without_image():
 
             settings_visible = page.evaluate("""() => {
                 var bar = document.querySelector('.sam-prompter-container .settings-bar');
-                return bar && !bar.classList.contains('hidden');
+                return bar && getComputedStyle(bar).display !== 'none';
             }""")
             assert settings_visible, "Settings bar should be visible after toggling settings button again"
 

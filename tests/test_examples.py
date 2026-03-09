@@ -143,7 +143,7 @@ def test_examples_click_loads_image():
 
             # Drop zone visible before loading
             assert page.evaluate(
-                "!document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
+                "getComputedStyle(document.querySelector('.sam-prompter-container .drop-zone')).display !== 'none'"
             ), "Drop zone should be visible initially"
 
             # Click the first example thumbnail
@@ -152,7 +152,7 @@ def test_examples_click_loads_image():
 
             # Drop zone should be hidden (image loaded)
             assert page.evaluate(
-                "document.querySelector('.sam-prompter-container .drop-zone').classList.contains('hidden')"
+                "getComputedStyle(document.querySelector('.sam-prompter-container .drop-zone')).display === 'none'"
             ), "Drop zone should be hidden after clicking an example"
 
             browser.close()

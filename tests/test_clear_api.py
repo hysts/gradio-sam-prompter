@@ -26,9 +26,9 @@ def _get_state(page: Page) -> dict:
             boxes: obj.boxes.length,
             maskCount: s.maskCanvases.filter(function(c) { return c !== null; }).length,
             rawMaskCount: s.rawMasks.filter(function(c) { return c !== null; }).length,
-            dropZoneHidden: document.querySelector(
+            dropZoneHidden: getComputedStyle(document.querySelector(
                 '.sam-prompter-container .drop-zone'
-            ).classList.contains('hidden')
+            )).display === 'none'
         };
     }""")
 

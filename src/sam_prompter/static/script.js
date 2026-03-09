@@ -399,19 +399,9 @@
     // --- Visibility sync (survives Gradio template re-rendering) ---
 
     function syncVisibility() {
-        if (state.image) {
-            dropZone.classList.add("hidden");
-        } else {
-            dropZone.classList.remove("hidden");
-        }
-        // Restore settings bar visibility from state
-        if (state.settingsVisible) {
-            settingsBar.classList.remove("hidden");
-            settingsBtn.classList.add("active");
-        } else {
-            settingsBar.classList.add("hidden");
-            settingsBtn.classList.remove("active");
-        }
+        // Classes on element (outside morph scope) — survive DOM diffing
+        element.classList.toggle("sp-has-image", !!state.image);
+        element.classList.toggle("sp-settings-hidden", !state.settingsVisible);
         // Restore maximized state
         var wasMaximized = element.classList.contains("sp-maximized");
         element.classList.toggle("sp-maximized", state.maximized);
@@ -1165,27 +1155,6 @@
         }
     });
     observer.observe(dataScript, { childList: true, characterData: true, subtree: true });
-
-    // Gradio may reset DOM attributes when re-rendering the template.
-    // Re-apply drop-zone visibility if Gradio resets the class.
-    var domObserver = new MutationObserver(function () {
-        var shouldBeHidden = !!state.image;
-        var isHidden = dropZone.classList.contains("hidden");
-        if (shouldBeHidden !== isHidden) {
-            syncVisibility();
-        }
-    });
-    domObserver.observe(dropZone, { attributes: true, attributeFilter: ["class"] });
-
-    // Similarly, restore settings-bar visibility if Gradio resets the class.
-    var settingsObserver = new MutationObserver(function () {
-        var shouldBeVisible = state.settingsVisible;
-        var isHidden = settingsBar.classList.contains("hidden");
-        if (shouldBeVisible === isHidden) {
-            syncVisibility();
-        }
-    });
-    settingsObserver.observe(settingsBar, { attributes: true, attributeFilter: ["class"] });
 
     // --- Mouse events ---
 
