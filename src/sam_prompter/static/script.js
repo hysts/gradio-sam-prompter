@@ -173,30 +173,35 @@
         };
     }
 
-    // --- Color swatches ---
+    // --- Color swatches (pre-rendered in template; JS syncs active state) ---
 
-    function renderColorSwatches() {
-        // Object color swatches
+    function syncColorSwatches() {
         var activeColor = state.objects[state.activeObjectIndex].color;
-        objColorSwatches.innerHTML = "";
-        for (var i = 0; i < VIEW_COLORS.length; i++) {
-            (function (color) {
-                var btn = document.createElement("button");
-                btn.className = "color-swatch" + (color === activeColor ? " active" : "");
-                btn.style.background = color;
-                btn.style.borderColor = color === activeColor ? color : "transparent";
-                btn.title = color;
-                btn.addEventListener("click", function () {
+        var swatches = objColorSwatches.querySelectorAll(".color-swatch");
+        for (var i = 0; i < swatches.length; i++) {
+            var color = swatches[i].getAttribute("data-color");
+            var isActive = color === activeColor;
+            swatches[i].classList.toggle("active", isActive);
+            swatches[i].style.borderColor = isActive ? color : "";
+        }
+    }
+
+    objColorSwatches.addEventListener("click", function (e) {
+        var target = e.target;
+        while (target && target !== objColorSwatches) {
+            if (target.classList.contains("color-swatch")) {
+                var color = target.getAttribute("data-color");
+                if (color) {
                     state.objects[state.activeObjectIndex].color = color;
                     redecodeMask(state.activeObjectIndex);
                     renderToolbar();
                     requestRender();
-                });
-                objColorSwatches.appendChild(btn);
-            })(VIEW_COLORS[i]);
+                }
+                return;
+            }
+            target = target.parentElement;
         }
-
-    }
+    });
 
     function redecodeMask(index) {
         if (index < state.rawMasks.length && state.rawMasks[index]) {
@@ -747,8 +752,8 @@
         maskOpacityValue.textContent = Math.round(maskAlpha * 100) + "%";
         boxLineWidthValue.textContent = boxLineWidth + "px";
 
-        // Color swatches
-        renderColorSwatches();
+        // Color swatches (active state sync)
+        syncColorSwatches();
     }
 
     // --- Object management ---

@@ -290,6 +290,75 @@ def test_object_color_swatch_active_on_initial_load():
         demo.close()
 
 
+def test_color_swatches_pre_rendered_with_data_attributes():
+    """All 12 color swatches should be pre-rendered with data-color attributes."""
+    _, url, _ = demo.launch(prevent_thread_lock=True)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_default_timeout(5000)
+            page.goto(url)
+            wait_for_container(page)
+
+            info = page.evaluate("""() => {
+                var swatches = document.querySelectorAll(
+                    '.sam-prompter-container .obj-color-swatches .color-swatch'
+                );
+                var colors = [];
+                for (var i = 0; i < swatches.length; i++) {
+                    colors.push(swatches[i].getAttribute('data-color'));
+                }
+                return { count: swatches.length, colors: colors };
+            }""")
+            assert info["count"] == 12, f"Expected 12 color swatches, got {info['count']}"
+            for i, color in enumerate(info["colors"]):
+                assert color is not None, f"Swatch {i} should have a data-color attribute"
+                assert color.startswith("#"), f"Swatch {i} data-color should be hex, got {color!r}"
+
+            browser.close()
+    finally:
+        demo.close()
+
+
+def test_color_swatch_click_updates_object_state():
+    """Clicking a swatch should update the active object's color in JS state."""
+    _, url, _ = demo.launch(prevent_thread_lock=True)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_default_timeout(5000)
+            page.goto(url)
+            wait_for_container(page)
+
+            result = page.evaluate("""() => {
+                var swatches = document.querySelectorAll(
+                    '.sam-prompter-container .obj-color-swatches .color-swatch'
+                );
+                if (swatches.length < 3) return null;
+                var container = document.querySelector('.sam-prompter-container');
+                var colorBefore = container.__samPrompterState.objects[0].color;
+                var targetColor = swatches[2].getAttribute('data-color');
+                swatches[2].click();
+                var colorAfter = container.__samPrompterState.objects[0].color;
+                return {
+                    colorBefore: colorBefore,
+                    targetColor: targetColor,
+                    colorAfter: colorAfter
+                };
+            }""")
+            assert result is not None, "Should have at least 3 swatches"
+            assert result["colorAfter"] == result["targetColor"], (
+                f"Object color should change to {result['targetColor']}, "
+                f"got {result['colorAfter']} (was {result['colorBefore']})"
+            )
+
+            browser.close()
+    finally:
+        demo.close()
+
+
 def test_active_swatch_has_double_ring_indicator():
     """Active swatch should use a double-ring box-shadow visible on any color."""
     _, url, _ = demo.launch(prevent_thread_lock=True)

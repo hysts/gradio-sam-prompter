@@ -23,6 +23,29 @@ _COLOR_PALETTE = [
     "#F7DC6F",
 ]
 
+_VIEW_COLORS = [
+    "#00CC00",
+    "#0066FF",
+    "#FF0000",
+    "#FFCC00",
+    "#FF00FF",
+    "#00CCCC",
+    "#FF6600",
+    "#9933FF",
+    "#FFFFFF",
+    "#000000",
+    "#FF69B4",
+    "#00FF80",
+]
+
+
+def _build_swatches_html() -> str:
+    """Pre-render color swatch buttons so they survive DOM morphing as template children."""
+    return "".join(
+        f'<button class="color-swatch" data-color="{c}" style="background:{c}" title="{c}"></button>'
+        for c in _VIEW_COLORS
+    )
+
 
 class _ClearPrompts:
     """Wrapper that signals the frontend to clear all user-drawn prompts."""
@@ -93,6 +116,7 @@ class SamPrompter(gr.HTML):
             max_objects=max_objects,
             point_radius=point_radius,
             mask_alpha=mask_alpha,
+            swatches_html=_build_swatches_html(),
             **kwargs,
         )
 
