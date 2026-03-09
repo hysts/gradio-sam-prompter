@@ -419,6 +419,19 @@
     pointer-events: none;
 }
 
+/* Move mode cursors (classes on element wrapper, outside morph scope) */
+&.sp-move-mode:not(.sp-processing) canvas {
+    cursor: grab;
+}
+
+&.sp-move-mode.sp-panning:not(.sp-processing) canvas {
+    cursor: grabbing;
+}
+
+&.sp-move-mode.sp-zoom-1:not(.sp-processing) canvas {
+    cursor: default;
+}
+
 /* Loading */
 .sam-prompter-container .loading-indicator {
     position: absolute;

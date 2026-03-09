@@ -1,4 +1,4 @@
-"""Playwright UI tests for zoom/pan reset behavior."""
+"""Playwright UI tests for zoom/pan reset behavior and cursor states."""
 
 from _demo import demo
 from _helpers import upload_test_image, wait_for_container
@@ -110,6 +110,76 @@ def test_zoom_out_to_min_resets_pan_keyboard():
             )
             assert final_state["panX"] == 0, f"panX should be 0 at min zoom, got {final_state['panX']}"
             assert final_state["panY"] == 0, f"panY should be 0 at min zoom, got {final_state['panY']}"
+
+            browser.close()
+    finally:
+        demo.close()
+
+
+def test_cursor_crosshair_by_default():
+    """Canvas cursor should be crosshair in default (non-move, non-processing) mode."""
+    _, url, _ = demo.launch(prevent_thread_lock=True)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_default_timeout(10000)
+            page.goto(url)
+            wait_for_container(page)
+
+            upload_test_image(page)
+
+            cursor = page.evaluate("""() => {
+                var canvas = document.querySelector('.sam-prompter-container canvas');
+                return window.getComputedStyle(canvas).cursor;
+            }""")
+            assert cursor == "crosshair", f"Default cursor should be 'crosshair', got '{cursor}'"
+
+            browser.close()
+    finally:
+        demo.close()
+
+
+def test_cursor_grab_in_move_mode():
+    """Canvas cursor should be grab when move mode is toggled on."""
+    _, url, _ = demo.launch(prevent_thread_lock=True)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_default_timeout(10000)
+            page.goto(url)
+            wait_for_container(page)
+
+            upload_test_image(page)
+
+            # Toggle move mode on
+            page.click(".sam-prompter-container .move-btn")
+            page.wait_for_timeout(200)
+
+            # Zoom in so grab cursor appears (at zoom=1, no grab is needed)
+            canvas = page.locator(".sam-prompter-container canvas")
+            box = canvas.bounding_box()
+            page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+            for _ in range(5):
+                page.mouse.wheel(0, -120)
+            page.wait_for_timeout(200)
+
+            cursor = page.evaluate("""() => {
+                var canvas = document.querySelector('.sam-prompter-container canvas');
+                return window.getComputedStyle(canvas).cursor;
+            }""")
+            assert cursor == "grab", f"Move mode cursor should be 'grab', got '{cursor}'"
+
+            # Toggle move mode off — cursor should revert to crosshair
+            page.click(".sam-prompter-container .move-btn")
+            page.wait_for_timeout(200)
+
+            cursor_after = page.evaluate("""() => {
+                var canvas = document.querySelector('.sam-prompter-container canvas');
+                return window.getComputedStyle(canvas).cursor;
+            }""")
+            assert cursor_after == "crosshair", f"Cursor should revert to 'crosshair', got '{cursor_after}'"
 
             browser.close()
     finally:

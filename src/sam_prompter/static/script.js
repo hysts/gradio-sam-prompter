@@ -271,6 +271,7 @@
         state.panY = cy - (cy - state.panY) * (newZoom / state.zoom);
         state.zoom = newZoom;
         clampPan();
+        updateCanvasCursor();
         requestRender();
     }
 
@@ -278,6 +279,7 @@
         state.zoom = 1;
         state.panX = 0;
         state.panY = 0;
+        updateCanvasCursor();
         requestRender();
     }
 
@@ -319,12 +321,9 @@
 
     function updateCanvasCursor() {
         element.classList.toggle("sp-processing", state.isProcessing);
-        if (state.isProcessing) return;
-        if (isMoveModeActive()) {
-            canvas.style.cursor = state.isPanning ? "grabbing" : (state.zoom > 1 ? "grab" : "default");
-        } else {
-            canvas.style.cursor = "crosshair";
-        }
+        element.classList.toggle("sp-move-mode", isMoveModeActive());
+        element.classList.toggle("sp-panning", state.isPanning);
+        element.classList.toggle("sp-zoom-1", state.zoom <= 1);
     }
 
     // --- RLE mask decode ---
@@ -1606,7 +1605,6 @@
                 break;
             case "0":
                 resetZoom();
-                updateCanvasCursor();
                 e.preventDefault();
                 break;
         }
