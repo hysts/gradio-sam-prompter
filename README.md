@@ -24,7 +24,7 @@ Users can upload images, place foreground/background points, draw bounding boxes
 - **Maximize mode** — Full-screen canvas toggle
 - **Keyboard shortcuts** — Comprehensive shortcuts for all actions (press `?` to view)
 - **Examples gallery** — `gr.Examples` support with image thumbnails via `process_example()`
-- **State persistence** — UI state survives Gradio round-trips via MutationObserver
+- **State persistence** — UI state survives Gradio round-trips via Gradio's `watch()` API
 
 ## Installation
 
