@@ -2,7 +2,6 @@
     "use strict";
 
     var container = element.querySelector(".sam-prompter-container");
-    var dataScript = element.querySelector("script.prompt-data");
     var canvasWrapper = container.querySelector(".canvas-wrapper");
     var canvas = canvasWrapper.querySelector("canvas");
     var ctx = canvas.getContext("2d");
@@ -943,22 +942,17 @@
         updateCanvasCursor();
     }
 
-    // --- MutationObserver (Python → JS) ---
+    // --- Python → JS communication (via watch API) ---
 
     function handleDataUpdate() {
-        var raw = dataScript.textContent.trim();
+        var raw = typeof props.value === "string" ? props.value : "";
         if (!raw || raw === "null") {
-            // Only reset if image was from Python (not user upload)
             if (state.imageSource !== "upload") {
                 state.image = null;
                 state.imageUrl = null;
                 state.rawMasks = [];
                 state.maskCanvases = [];
             }
-            // Restore dynamically-populated toolbar elements (swatches,
-            // object tabs) that Gradio's Svelte template re-evaluation
-            // clears when it resets ${value} after the Python handler
-            // output is applied.
             scheduleProcessingReset();
             if (state.image) {
                 resizeCanvas();
@@ -975,12 +969,9 @@
             return;
         }
 
-        // Schedule deferred processing reset only for actual Python
-        // responses (which contain "masks", "image", or "clearPrompts" keys).
-        // The Svelte echo of props.value (which only has "prompts") must
-        // NOT reset the flag, otherwise isProcessing would be cleared
-        // immediately via microtask before Python even responds.
-        if (state.isProcessing && ("masks" in data || "image" in data || "clearPrompts" in data)) {
+        // watch() only fires on backend (Python) responses, so every
+        // invocation is a genuine server reply — no echo detection needed.
+        if (state.isProcessing) {
             scheduleProcessingReset();
         }
 
@@ -1068,15 +1059,12 @@
             state.maskCanvases = newCanvases;
         } else if ("masks" in data) {
             // Python explicitly returned empty masks — clear.
-            // Skip when the key is absent (JS echo in Svelte Phase 1).
             state.rawMasks = [];
             state.maskCanvases = [];
         }
 
         // If the user uploaded an image, keep displaying it (blob URL)
         // and only update masks — do NOT reload from the Python cache URL.
-        // Re-render the toolbar because Gradio's template re-evaluation
-        // resets dynamically-populated DOM elements (swatches, object tabs).
         if (state.imageSource === "upload" && state.image) {
             resizeCanvas();
             renderToolbar();
@@ -1131,22 +1119,18 @@
             };
             img.src = data.image;
         } else if (data.image === state.imageUrl && state.image) {
-            // Same image, just masks updated — re-render toolbar to restore
-            // dynamically-populated elements after Gradio template re-evaluation.
+            // Same image, just masks updated.
             resizeCanvas();
             renderToolbar();
             requestRender();
         }
     }
 
-    var observer = new MutationObserver(function () {
+    watch("value", function () {
         handleDataUpdate();
-        // Re-pin after every Gradio round-trip in case the "pending"
+        // Re-pin after every Python round-trip in case the "pending"
         // class was re-applied to an ancestor during the update.
         pinAncestorOpacity();
-        // In maximized mode, Gradio's morph may alter layout before
-        // resizeCanvas() runs above.  Schedule a deferred resize so
-        // the canvas fits the settled wrapper dimensions.
         if (state.maximized && state.image) {
             requestAnimationFrame(function () {
                 resizeCanvas();
@@ -1154,7 +1138,6 @@
             });
         }
     });
-    observer.observe(dataScript, { childList: true, characterData: true, subtree: true });
 
     // --- Mouse events ---
 
@@ -1797,6 +1780,10 @@
     // --- Init ---
 
     renderToolbar();
-    handleDataUpdate();
+    // Handle initial value (watch does not fire for the value already
+    // present when the component first mounts).
+    if (props.value) {
+        handleDataUpdate();
+    }
 
 })();

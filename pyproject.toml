@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sam-prompter"
-version = "0.1.5"
+version = "0.1.6"
 description = "Gradio gr.HTML component for SAM prompt input and mask visualization"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
-    "gradio>=6.8.0",
+    "gradio>=6.10.0",
     "numpy",
     "pillow",
 ]

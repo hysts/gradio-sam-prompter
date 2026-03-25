@@ -301,6 +301,7 @@ def test_can_add_point_after_clear():
 
             # Re-query bounding box (layout may shift after clear)
             canvas = page.locator(".sam-prompter-container canvas")
+            canvas.scroll_into_view_if_needed()
             box = canvas.bounding_box()
             page.mouse.click(
                 box["x"] + box["width"] / 2,
